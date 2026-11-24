@@ -12,13 +12,11 @@ Grab the latest standalone `EchoRAM.exe` from the **[Releases](../../releases/la
 
 ## What It Does
 
-- **Kernel Memory List Flushing**: Clears Working Sets, System Working Set (file cache), Modified Page List, Standby List, and Priority 0 Standby List using `NtSetSystemInformation` and `SetSystemFileCacheSize`.
-- **Automatic Threshold & Idle Cleanup**: Monitors physical memory usage in the background and clears cached memory when usage crosses configurable thresholds or when your PC is idle.
-- **Game Shield Mode**: Watches for configured game processes (including Wuthering Waves, Punishing: Gray Raven, Genshin Impact, Honkai: Star Rail, and Zenless Zone Zero), protects the game and anti-cheat processes (`ACE`, `EasyAntiCheat`, `SGuard`, `dwm`, `audiodg`) from working-set trims, elevates game process priority, and trims background bloat.
-- **CPU Load Guard**: Defers non-critical flushes when CPU usage is high (default 85%) to avoid frame drops during heavy workloads.
-- **Process Memory Manager**: Inspect running processes sorted by Working Set / Private Bytes and trim individual apps or all background apps on demand.
-- **System Tray & Global Hotkey**: Runs quietly in the system tray with a live memory indicator and a global hotkey (`Ctrl+Alt+F` by default) for instant cleanup.
-- **Anti-Cheat Safe**: Uses standard Windows memory management APIs only — no DLL injection, memory hooking, or driver loading.
+- **Kernel Memory Cleanup**: Flushes Standby List, Modified Page List, System File Cache, and Working Sets via native Windows APIs.
+- **Auto & Idle Triggers**: Automatically clears cached RAM when memory usage is high or your PC goes idle.
+- **Game Mode**: Detects active games, boosts their priority, trims background apps, and leaves game and anti-cheat processes untouched.
+- **Process Manager**: View top RAM-using apps and trim individual or background processes manually.
+- **Tray & Hotkey**: Lives in the system tray with `Ctrl+Alt+F` for instant cleanup.
 
 ## Requirements
 
