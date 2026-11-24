@@ -31,26 +31,7 @@ Grab the latest standalone `EchoRAM.exe` from the **[Releases](../../releases/la
 3. Press `Ctrl+Alt+F` anytime to trigger an immediate flush.
 4. *(Optional)* Open **Settings** in the Dashboard to enable **Start EchoRAM on Windows logon** (which also adds a Start Menu shortcut), customize thresholds, or change the hotkey.
 
-> **Note on Windows SmartScreen:** Because `EchoRAM.exe` is an unsigned open-source binary, Windows SmartScreen may show *"Windows protected your PC"* on first launch when downloaded from the internet. Click **More info → Run anyway** (or build from source below).
-
-## Building from Source
-
-### Using Visual Studio / MSBuild
-
-Open `EchoRAM.sln` in Visual Studio and build `Release | x64`, or run:
-
-```powershell
-msbuild EchoRAM.sln /p:Configuration=Release /p:Platform=x64
-```
-
-### Using `csc.exe` (No Visual Studio required)
-
-```powershell
-C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe `
-  /target:winexe /out:EchoRAM.exe /optimize+ /platform:x64 /win32icon:ram_icon.ico `
-  /reference:System.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll /reference:System.Web.Extensions.dll `
-  src\*.cs
-```
+> **Note on Windows SmartScreen:** Because `EchoRAM.exe` is an unsigned open-source binary, Windows SmartScreen may show *"Windows protected your PC"* on first launch when downloaded from the internet. Click **More info → Run anyway**.
 
 ## Project Structure
 
