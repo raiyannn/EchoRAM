@@ -76,6 +76,9 @@ namespace EchoRAM
             if (string.Equals(processName, "SGuard64", StringComparison.OrdinalIgnoreCase)) return true;
             if (string.Equals(processName, "SGuard32", StringComparison.OrdinalIgnoreCase)) return true;
 
+            // Protect Unreal Engine games automatically (*-Win64-Shipping)
+            if (processName.EndsWith("-Win64-Shipping", StringComparison.OrdinalIgnoreCase)) return true;
+
             if (gameNames != null)
             {
                 foreach (var g in gameNames)

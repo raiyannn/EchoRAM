@@ -40,6 +40,7 @@ namespace EchoRAM
             EnableGameMode = true;
             GameProcessNames = new string[]
             {
+                // Gacha & Anime Action RPGs
                 "Client-Win64-Shipping",     // Wuthering Waves
                 "Wuthering Waves",
                 "KRWebClient",
@@ -48,7 +49,68 @@ namespace EchoRAM
                 "GenshinImpact",             // Genshin Impact
                 "YuanShen",
                 "StarRail",                  // Honkai: Star Rail
-                "ZenlessZoneZero"            // Zenless Zone Zero
+                "ZenlessZoneZero",           // Zenless Zone Zero
+                "BH3",                       // Honkai Impact 3rd
+                "Endfield",                  // Arknights: Endfield
+                "nikke",                     // GODDESS OF VICTORY: NIKKE
+
+                // Competitive FPS & Shooters (Steam / Riot / Battle.net)
+                "cs2",                       // Counter-Strike 2
+                "VALORANT-Win64-Shipping",   // Valorant
+                "VALORANT",
+                "r5apex",                    // Apex Legends
+                "FortniteClient-Win64-Shipping", // Fortnite
+                "TslGame",                   // PUBG: BATTLEGROUNDS
+                "Overwatch",                 // Overwatch 2
+                "RainbowSix",                // Rainbow Six Siege
+                "RainbowSix_Vulkan",
+                "cod",                       // Call of Duty
+                "bf2042",                    // Battlefield 2042
+                "helldivers2",               // Helldivers 2
+                "Destiny2",                  // Destiny 2
+                "EscapeFromTarkov",          // Escape from Tarkov
+                "Discovery",                 // THE FINALS
+                "RustClient",                // Rust
+
+                // MOBA & Competitive
+                "League of Legends",         // League of Legends
+                "dota2",                     // Dota 2
+                "RocketLeague",              // Rocket League
+
+                // Popular Steam AAA, Open-World & Co-op
+                "eldenring",                 // Elden Ring
+                "Cyberpunk2077",             // Cyberpunk 2077
+                "witcher3",                  // The Witcher 3
+                "GTA5",                      // Grand Theft Auto V
+                "RDR2",                      // Red Dead Redemption 2
+                "bg3",                       // Baldur's Gate 3
+                "bg3_dx11",
+                "b1-Win64-Shipping",         // Black Myth: Wukong
+                "HogwartsLegacy",            // Hogwarts Legacy
+                "Starfield",                 // Starfield
+                "SkyrimSE",                  // Skyrim Special Edition
+                "Fallout4",                  // Fallout 4
+                "MonsterHunterWorld",        // Monster Hunter: World
+                "MonsterHunterWilds",        // Monster Hunter Wilds
+                "MonsterHunterRise",         // Monster Hunter Rise
+                "Palworld-Win64-Shipping",   // Palworld
+                "PathOfExileSteam",          // Path of Exile
+                "PathOfExile",
+                "PathOfExile2Steam",         // Path of Exile 2
+                "Diablo IV",                 // Diablo IV
+                "Warframe.x64",              // Warframe
+                "FFXIV_dx11",                // Final Fantasy XIV
+                "GhostOfTsushima",           // Ghost of Tsushima
+                "GoWR",                      // God of War Ragnarok
+                "ForzaHorizon5",             // Forza Horizon 5
+                "SoTGame",                   // Sea of Thieves
+                "Hades",                     // Hades
+                "Hades2",                    // Hades II
+                "Terraria",                  // Terraria
+                "Stardew Valley",            // Stardew Valley
+                "javaw",                     // Minecraft Java Edition
+                "Minecraft.Windows",         // Minecraft Bedrock
+                "RobloxPlayerBeta"           // Roblox
             };
             GameHighUsagePercent = 75.0;
             GameTrimIntervalMinutes = 2;

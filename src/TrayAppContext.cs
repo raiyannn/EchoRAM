@@ -388,32 +388,42 @@ namespace EchoRAM
 
         private void CheckGameDetection()
         {
-            if (!Settings.EnableGameMode || Settings.GameProcessNames == null) return;
+            if (!Settings.EnableGameMode) return;
 
             string detected = "";
             try
             {
-                foreach (string game in Settings.GameProcessNames)
+                if (Settings.GameProcessNames != null)
                 {
-                    if (string.IsNullOrEmpty(game)) continue;
-                    string clean = game.Replace(".exe", "").Trim();
-                    Process[] procs = Process.GetProcessesByName(clean);
-                    if (procs != null && procs.Length > 0)
+                    foreach (string game in Settings.GameProcessNames)
                     {
-                        detected = game;
-                        if (Settings.GamePriorityBoost)
+                        if (string.IsNullOrEmpty(game)) continue;
+                        string clean = game.Replace(".exe", "").Trim();
+                        Process[] procs = Process.GetProcessesByName(clean);
+                        if (procs != null && procs.Length > 0)
                         {
-                            foreach (var gp in procs)
+                            detected = game;
+                            BoostGamePriority(procs);
+                            break;
+                        }
+                    }
+                }
+
+                // Fallback: auto-detect Unreal Engine games (*-Win64-Shipping)
+                if (string.IsNullOrEmpty(detected))
+                {
+                    foreach (Process p in Process.GetProcesses())
+                    {
+                        try
+                        {
+                            if (p.ProcessName.EndsWith("-Win64-Shipping", StringComparison.OrdinalIgnoreCase))
                             {
-                                try
-                                {
-                                    if (gp.PriorityClass != ProcessPriorityClass.High)
-                                        gp.PriorityClass = ProcessPriorityClass.High;
-                                }
-                                catch { }
+                                detected = p.ProcessName;
+                                BoostGamePriority(new Process[] { p });
+                                break;
                             }
                         }
-                        break;
+                        catch { }
                     }
                 }
             }
@@ -436,6 +446,20 @@ namespace EchoRAM
                 Log(string.Format("[Game Exited] {0} - running post-game reclamation flush", exitedGame));
                 RunFlush(FlushLevel.Full, "Post-Game Reclamation");
                 ShowNotification("Game Session Ended", string.Format("Cleaned up remaining memory from [{0}].", exitedGame));
+            }
+        }
+
+        private void BoostGamePriority(Process[] procs)
+        {
+            if (!Settings.GamePriorityBoost || procs == null) return;
+            foreach (var gp in procs)
+            {
+                try
+                {
+                    if (gp.PriorityClass != ProcessPriorityClass.High)
+                        gp.PriorityClass = ProcessPriorityClass.High;
+                }
+                catch { }
             }
         }
 
