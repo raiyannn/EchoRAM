@@ -14,7 +14,7 @@ Grab the latest standalone `EchoRAM.exe` from the **[Releases](../../releases/la
 
 - **Kernel Memory Cleanup**: Flushes Standby List, Modified Page List, System File Cache, and Working Sets via native Windows APIs.
 - **Auto & Idle Triggers**: Automatically clears cached RAM when memory usage is high or your PC goes idle.
-- **Game Mode**: Detects active games, boosts their priority, trims background apps, and leaves game and anti-cheat processes untouched.
+- **Game Mode**: Automatically detects 60+ popular Steam/PC games plus Unreal Engine (`*-Win64-Shipping`) titles, boosts their priority, trims background apps, and leaves game and anti-cheat processes untouched.
 - **Process Manager**: View top RAM-using apps and trim individual or background processes manually.
 - **Tray & Hotkey**: Lives in the system tray with `Ctrl+Alt+F` for instant cleanup.
 
