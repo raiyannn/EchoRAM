@@ -1,0 +1,64 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <ProjectGuid>{8A3B5F92-4D1E-48A6-9C2A-11B09F5E3D21}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>EchoRAM</RootNamespace>
+    <AssemblyName>EchoRAM</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <ApplicationIcon>ram_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="src\AppSettings.cs" />
+    <Compile Include="src\DashboardForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\DashboardForm.Gaming.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\DashboardForm.Overview.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\DashboardForm.Processes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\DashboardForm.RamMap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\DashboardForm.Settings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\Monitors.cs" />
+    <Compile Include="src\NativeMethods.cs" />
+    <Compile Include="src\Program.cs" />
+    <Compile Include="src\TrayAppContext.cs" />
+    <Compile Include="src\UITheme.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ram_icon.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
