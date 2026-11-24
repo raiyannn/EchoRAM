@@ -36,33 +36,35 @@ namespace EchoRAM
             chkIdleClean = CreateCheckBox("Enable Idle Deep Clean (Flushes when user is AFK)", 82);
             chkCpuSafety = CreateCheckBox("Enable CPU Load Guard (Defer flush under heavy CPU load)", 114);
             chkNotifications = CreateCheckBox("Show Windows Tray Notifications on Flush", 146);
+            chkAutoUpdate = CreateCheckBox("Automatically check GitHub for updates", 178);
 
             cardOpts.Controls.Add(chkAutoStart);
             cardOpts.Controls.Add(chkGameMode);
             cardOpts.Controls.Add(chkIdleClean);
             cardOpts.Controls.Add(chkCpuSafety);
             cardOpts.Controls.Add(chkNotifications);
+            cardOpts.Controls.Add(chkAutoUpdate);
 
-            var lblH = new Label { Text = "High RAM Flush Trigger (%):", Location = new Point(18, 190), AutoSize = true, ForeColor = UITheme.TextSecondary };
-            numHighUsage = new NumericUpDown { Location = new Point(250, 187), Width = 75, Minimum = 40, Maximum = 95, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary };
+            var lblH = new Label { Text = "High RAM Flush Trigger (%):", Location = new Point(18, 222), AutoSize = true, ForeColor = UITheme.TextSecondary };
+            numHighUsage = new NumericUpDown { Location = new Point(250, 219), Width = 75, Minimum = 40, Maximum = 95, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary };
             cardOpts.Controls.Add(lblH); cardOpts.Controls.Add(numHighUsage);
 
-            var lblM = new Label { Text = "Medium RAM Flush Trigger (%):", Location = new Point(18, 227), AutoSize = true, ForeColor = UITheme.TextSecondary };
-            numMediumUsage = new NumericUpDown { Location = new Point(250, 224), Width = 75, Minimum = 30, Maximum = 90, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary };
+            var lblM = new Label { Text = "Medium RAM Flush Trigger (%):", Location = new Point(18, 259), AutoSize = true, ForeColor = UITheme.TextSecondary };
+            numMediumUsage = new NumericUpDown { Location = new Point(250, 256), Width = 75, Minimum = 30, Maximum = 90, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary };
             cardOpts.Controls.Add(lblM); cardOpts.Controls.Add(numMediumUsage);
 
-            var lblI = new Label { Text = "Idle Trigger Time (Minutes):", Location = new Point(18, 264), AutoSize = true, ForeColor = UITheme.TextSecondary };
-            numIdleMinutes = new NumericUpDown { Location = new Point(250, 261), Width = 75, Minimum = 1, Maximum = 60, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary };
+            var lblI = new Label { Text = "Idle Trigger Time (Minutes):", Location = new Point(18, 296), AutoSize = true, ForeColor = UITheme.TextSecondary };
+            numIdleMinutes = new NumericUpDown { Location = new Point(250, 293), Width = 75, Minimum = 1, Maximum = 60, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary };
             cardOpts.Controls.Add(lblI); cardOpts.Controls.Add(numIdleMinutes);
 
-            var lblHk = new Label { Text = "Global Flush Hotkey:", Location = new Point(18, 301), AutoSize = true, ForeColor = UITheme.TextSecondary };
-            txtHotkey = new TextBox { Location = new Point(250, 298), Width = 140, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary, BorderStyle = BorderStyle.FixedSingle };
+            var lblHk = new Label { Text = "Global Flush Hotkey:", Location = new Point(18, 333), AutoSize = true, ForeColor = UITheme.TextSecondary };
+            txtHotkey = new TextBox { Location = new Point(250, 330), Width = 140, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary, BorderStyle = BorderStyle.FixedSingle };
             cardOpts.Controls.Add(lblHk); cardOpts.Controls.Add(txtHotkey);
 
             var btnSave = new Button
             {
                 Text = "Save & Apply Settings",
-                Location = new Point(18, 355),
+                Location = new Point(18, 382),
                 Size = new Size(210, 42),
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
@@ -71,6 +73,21 @@ namespace EchoRAM
             };
             btnSave.Click += (s, e) => SaveSettingsFromUI();
             cardOpts.Controls.Add(btnSave);
+
+            var btnCheckUpdate = new Button
+            {
+                Text = string.Format("Check for Updates (v{0})", Program.AppVersion),
+                Location = new Point(242, 382),
+                Size = new Size(220, 42),
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                BackColor = UITheme.BgCardHover,
+                ForeColor = UITheme.TextPrimary,
+                Cursor = Cursors.Hand
+            };
+            btnCheckUpdate.FlatAppearance.BorderColor = UITheme.Border;
+            btnCheckUpdate.Click += (s, e) => context.CheckForUpdates(true);
+            cardOpts.Controls.Add(btnCheckUpdate);
 
             viewSettings.Controls.Add(cardOpts);
 
@@ -89,6 +106,7 @@ namespace EchoRAM
             chkIdleClean.Checked = context.Settings.EnableIdleFlush;
             chkCpuSafety.Checked = context.Settings.EnableCpuSafety;
             chkNotifications.Checked = context.Settings.EnableNotifications;
+            chkAutoUpdate.Checked = context.Settings.CheckForUpdates;
 
             numHighUsage.Value = (decimal)context.Settings.HighUsagePercent;
             numMediumUsage.Value = (decimal)context.Settings.MediumUsagePercent;
@@ -109,6 +127,7 @@ namespace EchoRAM
             context.Settings.EnableIdleFlush = chkIdleClean.Checked;
             context.Settings.EnableCpuSafety = chkCpuSafety.Checked;
             context.Settings.EnableNotifications = chkNotifications.Checked;
+            context.Settings.CheckForUpdates = chkAutoUpdate.Checked;
 
             context.Settings.HighUsagePercent = (double)numHighUsage.Value;
             context.Settings.MediumUsagePercent = (double)numMediumUsage.Value;

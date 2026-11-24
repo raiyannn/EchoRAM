@@ -28,6 +28,7 @@ namespace EchoRAM
         public double CpuThresholdPercent { get; set; }
 
         public bool EnableNotifications { get; set; }
+        public bool CheckForUpdates { get; set; }
 
         public AppSettings()
         {
@@ -127,6 +128,7 @@ namespace EchoRAM
             CpuThresholdPercent = 85.0;
 
             EnableNotifications = true;
+            CheckForUpdates = true;
         }
 
         public static AppSettings Load(string path)

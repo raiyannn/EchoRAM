@@ -6,10 +6,14 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+
 namespace EchoRAM
 {
     static class Program
     {
+        public const string AppVersion = "1.0.0";
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
 

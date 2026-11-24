@@ -36,6 +36,9 @@ namespace EchoRAM
         private IntPtr currentHIcon = IntPtr.Zero;
 
         private DashboardForm dashboardForm = null;
+        private UpdateInfo pendingUpdate = null;
+        private DateTime lastUpdateCheck = DateTime.MinValue;
+        private System.Windows.Forms.Timer updateDelayTimer;
 
         public TrayAppContext()
         {
@@ -80,6 +83,11 @@ namespace EchoRAM
             };
 
             trayIcon.DoubleClick += (s, e) => ShowDashboard();
+            trayIcon.BalloonTipClicked += (s, e) =>
+            {
+                if (pendingUpdate != null && pendingUpdate.UpdateAvailable)
+                    PromptAndInstallUpdate(pendingUpdate);
+            };
 
             SetupHotkey();
 
@@ -87,6 +95,19 @@ namespace EchoRAM
             monitorTimer.Interval = Math.Max(5000, Settings.CheckIntervalSeconds * 1000);
             monitorTimer.Tick += OnMonitorTick;
             monitorTimer.Start();
+
+            if (Settings.CheckForUpdates)
+            {
+                updateDelayTimer = new System.Windows.Forms.Timer { Interval = 10000 };
+                updateDelayTimer.Tick += (s, e) =>
+                {
+                    updateDelayTimer.Stop();
+                    updateDelayTimer.Dispose();
+                    updateDelayTimer = null;
+                    CheckForUpdates(false);
+                };
+                updateDelayTimer.Start();
+            }
 
             UpdateTrayIconAndTooltip();
 
@@ -225,6 +246,11 @@ namespace EchoRAM
                 if (File.Exists(LogPath)) Process.Start("notepad.exe", LogPath);
             });
 
+            var updateItem = new ToolStripMenuItem("Check for Updates");
+            updateItem.Name = "menu_update";
+            updateItem.Click += (s, e) => CheckForUpdates(true);
+            menu.Items.Add(updateItem);
+
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add("Exit", null, OnExit);
 
@@ -242,6 +268,15 @@ namespace EchoRAM
             var asItem = menu.Items["menu_autostart"] as ToolStripMenuItem;
             if (asItem != null)
                 asItem.Checked = AutoStartManager.IsAutoStartEnabled();
+
+            var updItem = menu.Items["menu_update"] as ToolStripMenuItem;
+            if (updItem != null)
+            {
+                if (pendingUpdate != null && pendingUpdate.UpdateAvailable)
+                    updItem.Text = string.Format("Install Update (v{0})", pendingUpdate.LatestVersion);
+                else
+                    updItem.Text = string.Format("Check for Updates (v{0})", Program.AppVersion);
+            }
 
             var st = menu.Items["menu_status"];
             if (st != null)
@@ -304,6 +339,9 @@ namespace EchoRAM
         private void OnMonitorTick(object sender, EventArgs e)
         {
             if (isFlushRunning) return;
+
+            if (Settings.CheckForUpdates && (DateTime.Now - lastUpdateCheck).TotalHours >= 24)
+                CheckForUpdates(false);
 
             var mem = NativeMethods.GetMemoryInfo();
             double ramPercent = mem.dwMemoryLoad;
@@ -624,6 +662,87 @@ namespace EchoRAM
                     isFlushRunning = false;
                 }
             });
+        }
+
+        public void CheckForUpdates(bool userInitiated)
+        {
+            lastUpdateCheck = DateTime.Now;
+            Updater.CheckForUpdatesAsync(info =>
+            {
+                Action handleResult = () =>
+                {
+                    if (!string.IsNullOrEmpty(info.Error))
+                    {
+                        if (userInitiated)
+                        {
+                            MessageBox.Show("Could not check for updates:\n" + info.Error,
+                                "EchoRAM Update", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                        return;
+                    }
+
+                    if (info.UpdateAvailable)
+                    {
+                        pendingUpdate = info;
+                        Log(string.Format("[Update] EchoRAM v{0} available (current: v{1})", info.LatestVersion, Program.AppVersion));
+                        if (userInitiated)
+                        {
+                            PromptAndInstallUpdate(info);
+                        }
+                        else
+                        {
+                            ShowNotification(
+                                string.Format("EchoRAM Update Available (v{0})", info.LatestVersion),
+                                "Click here or open Settings / Tray Menu to download and install.");
+                        }
+                    }
+                    else if (userInitiated)
+                    {
+                        MessageBox.Show(
+                            string.Format("You are already running the latest version (v{0}).", Program.AppVersion),
+                            "EchoRAM Update", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                };
+
+                try
+                {
+                    if (dashboardForm != null && !dashboardForm.IsDisposed && dashboardForm.IsHandleCreated)
+                        dashboardForm.BeginInvoke((MethodInvoker)delegate { handleResult(); });
+                    else if (hotKeyWindow != null && !hotKeyWindow.IsDisposed && hotKeyWindow.IsHandleCreated)
+                        hotKeyWindow.BeginInvoke((MethodInvoker)delegate { handleResult(); });
+                    else
+                        handleResult();
+                }
+                catch { }
+            });
+        }
+
+        public void PromptAndInstallUpdate(UpdateInfo info)
+        {
+            if (info == null || !info.UpdateAvailable) return;
+
+            DialogResult dr = MessageBox.Show(
+                string.Format("EchoRAM v{0} is available on GitHub (current: v{1}).\n\nDownload and install the update now?",
+                    info.LatestVersion, Program.AppVersion),
+                "EchoRAM Update Available",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Information);
+
+            if (dr != DialogResult.Yes) return;
+
+            string err;
+            if (Updater.DownloadAndApplyUpdate(info, out err))
+            {
+                Log(string.Format("[Update] Installing v{0} and restarting...", info.LatestVersion));
+                OnExit(null, EventArgs.Empty);
+            }
+            else
+            {
+                MessageBox.Show(
+                    "Auto-update failed: " + err + "\n\nOpening GitHub Releases page instead.",
+                    "EchoRAM Update", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                try { Process.Start(new ProcessStartInfo { FileName = info.ReleasePageUrl, UseShellExecute = true }); } catch { }
+            }
         }
 
         public void ShowNotification(string title, string message)

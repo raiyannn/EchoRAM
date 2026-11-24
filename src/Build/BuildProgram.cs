@@ -34,6 +34,7 @@ namespace EchoRAMBuilder
                 Path.Combine(srcDir, "AppSettings.cs"),
                 Path.Combine(srcDir, "Monitors.cs"),
                 Path.Combine(srcDir, "UITheme.cs"),
+                Path.Combine(srcDir, "Updater.cs"),
                 Path.Combine(srcDir, "TrayAppContext.cs"),
                 Path.Combine(srcDir, "DashboardForm.cs"),
                 Path.Combine(srcDir, "DashboardForm.Overview.cs"),

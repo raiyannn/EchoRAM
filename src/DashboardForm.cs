@@ -56,6 +56,7 @@ namespace EchoRAM
         private CheckBox chkIdleClean;
         private CheckBox chkCpuSafety;
         private CheckBox chkNotifications;
+        private CheckBox chkAutoUpdate;
         private NumericUpDown numHighUsage;
         private NumericUpDown numMediumUsage;
         private NumericUpDown numIdleMinutes;
