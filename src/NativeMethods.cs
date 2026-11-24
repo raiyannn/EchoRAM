@@ -57,7 +57,7 @@ namespace EchoRAM
             return NtSetSystemInformation(SystemMemoryListInformation, ref cmd, sizeof(int));
         }
 
-        public static bool IsProtectedProcess(string processName, IEnumerable<string> gameNames)
+        public static bool IsProtectedProcess(string processName, IEnumerable<string> gameNames, IEnumerable<string> excludedNames = null)
         {
             if (string.IsNullOrEmpty(processName)) return true;
 
@@ -79,6 +79,16 @@ namespace EchoRAM
             // Protect Unreal Engine games automatically (*-Win64-Shipping)
             if (processName.EndsWith("-Win64-Shipping", StringComparison.OrdinalIgnoreCase)) return true;
 
+            if (excludedNames != null)
+            {
+                foreach (var ex in excludedNames)
+                {
+                    if (string.IsNullOrEmpty(ex)) continue;
+                    string clean = ex.Replace(".exe", "").Trim();
+                    if (string.Equals(processName, clean, StringComparison.OrdinalIgnoreCase)) return true;
+                }
+            }
+
             if (gameNames != null)
             {
                 foreach (var g in gameNames)
@@ -94,7 +104,7 @@ namespace EchoRAM
             return false;
         }
 
-        public static int TrimBackgroundProcesses(IEnumerable<string> gameNames)
+        public static int TrimBackgroundProcesses(IEnumerable<string> gameNames, IEnumerable<string> excludedNames = null)
         {
             int count = 0;
             Process[] procs = Process.GetProcesses();
@@ -103,7 +113,7 @@ namespace EchoRAM
                 try
                 {
                     if (p.Id <= 4) continue;
-                    if (IsProtectedProcess(p.ProcessName, gameNames)) continue;
+                    if (IsProtectedProcess(p.ProcessName, gameNames, excludedNames)) continue;
 
                     IntPtr hProc = OpenProcess(0x0100 | 0x0400, false, p.Id);
                     if (hProc != IntPtr.Zero)
@@ -117,11 +127,11 @@ namespace EchoRAM
             return count;
         }
 
-        public static int TrimProcessWorkingSets(string excludeProcessName)
+        public static int TrimProcessWorkingSets(string excludeProcessName, IEnumerable<string> excludedNames = null)
         {
             var list = new List<string>();
             if (!string.IsNullOrEmpty(excludeProcessName)) list.Add(excludeProcessName);
-            return TrimBackgroundProcesses(list);
+            return TrimBackgroundProcesses(list, excludedNames);
         }
 
         public static bool TrimSingleProcess(int pid)

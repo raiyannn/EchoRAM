@@ -6,14 +6,14 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 
 namespace EchoRAM
 {
     static class Program
     {
-        public const string AppVersion = "1.0.0";
+        public const string AppVersion = "1.1.0";
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
 
@@ -39,10 +39,15 @@ namespace EchoRAM
                 return;
             }
 
+            bool showOnStart = false;
             if (args != null && args.Length > 0)
             {
                 string arg = args[0].ToLowerInvariant().Trim('-', '/');
-                if (arg == "install" || arg == "autostart")
+                if (arg == "show" || arg == "dashboard")
+                {
+                    showOnStart = true;
+                }
+                else if (arg == "install" || arg == "autostart")
                 {
                     bool ok = AutoStartManager.EnableAutoStart();
                     MessageBox.Show(
@@ -82,7 +87,7 @@ namespace EchoRAM
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new TrayAppContext());
+                Application.Run(new TrayAppContext(showOnStart));
             }
         }
 

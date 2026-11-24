@@ -61,6 +61,10 @@ namespace EchoRAM
         private NumericUpDown numMediumUsage;
         private NumericUpDown numIdleMinutes;
         private TextBox txtHotkey;
+        private ComboBox cmbTheme;
+        private TextBox txtExcludedProcs;
+        private Label lblTitle;
+        private Label lblSub;
 
         public DashboardForm(TrayAppContext ctx)
         {
@@ -76,16 +80,22 @@ namespace EchoRAM
             uiTimer.Tick += (s, e) => RefreshDashboardData();
         }
 
-        protected override void OnHandleCreated(EventArgs e)
+        private void ApplyDwmTheme()
         {
-            base.OnHandleCreated(e);
+            if (!this.IsHandleCreated) return;
             try
             {
-                int darkMode = 1;
+                int darkMode = UITheme.IsLightMode ? 0 : 1;
                 NativeMethods.DwmSetWindowAttribute(this.Handle, 20, ref darkMode, sizeof(int));
                 NativeMethods.DwmSetWindowAttribute(this.Handle, 19, ref darkMode, sizeof(int));
             }
             catch { }
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            ApplyDwmTheme();
         }
 
         protected override void OnVisibleChanged(EventArgs e)
@@ -150,7 +160,7 @@ namespace EchoRAM
                     e.Graphics.DrawLine(p, 0, panelHeader.Height - 1, panelHeader.Width, panelHeader.Height - 1);
             };
 
-            var lblTitle = new Label
+            lblTitle = new Label
             {
                 Text = "EchoRAM",
                 Font = new Font("Segoe UI", 13.5f, FontStyle.Bold),
@@ -160,13 +170,14 @@ namespace EchoRAM
             };
             panelHeader.Controls.Add(lblTitle);
 
-            var lblSub = new Label
+            lblSub = new Label
             {
                 Text = "Windows Memory Optimizer & Game Shield",
                 Font = new Font("Segoe UI", 8.5f),
                 ForeColor = UITheme.TextSecondary,
                 Location = new Point(24, 40),
-                AutoSize = true
+                AutoSize = true,
+                UseMnemonic = false
             };
             panelHeader.Controls.Add(lblSub);
 
@@ -362,6 +373,56 @@ namespace EchoRAM
             lblStatusMessage.Text = string.Format("Completed: RAM dropped from {0}% to {1}% (Freed {2:F2} GB)",
                 beforeLoad, afterLoad, freedGB);
             lblStatusMessage.ForeColor = UITheme.AccentGreen;
+        }
+
+        private void ApplyThemeToUI()
+        {
+            ApplyDwmTheme();
+            this.BackColor = UITheme.BgDark;
+            this.ForeColor = UITheme.TextPrimary;
+            panelHeader.BackColor = UITheme.BgSidebar;
+            panelSidebar.BackColor = UITheme.BgSidebar;
+            panelContentArea.BackColor = UITheme.BgDark;
+            if (lblTitle != null) lblTitle.ForeColor = UITheme.TextPrimary;
+            if (lblSub != null) lblSub.ForeColor = UITheme.TextSecondary;
+
+            ApplyThemeRecursive(panelContentArea);
+            SwitchView(viewOverview.Visible ? viewOverview :
+                       viewProcesses.Visible ? viewProcesses :
+                       viewGaming.Visible ? viewGaming :
+                       viewRamMap.Visible ? viewRamMap : viewSettings);
+            this.Invalidate(true);
+        }
+
+        private void ApplyThemeRecursive(Control parent)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                if (c is Panel)
+                {
+                    if (c == viewOverview || c == viewProcesses || c == viewGaming || c == viewRamMap || c == viewSettings)
+                        c.BackColor = UITheme.BgDark;
+                    else
+                        c.BackColor = UITheme.BgCard;
+                }
+                else if (c is TextBox || c is NumericUpDown || c is ComboBox || c is ListBox || c is ListView)
+                {
+                    c.BackColor = UITheme.BgCard;
+                    c.ForeColor = UITheme.TextPrimary;
+                }
+                else if (c is CheckBox)
+                {
+                    c.ForeColor = UITheme.TextPrimary;
+                }
+                else if (c is Label && c != lblModeBadge && c != lblSessionStats)
+                {
+                    if (c.ForeColor != UITheme.AccentCyan && c.ForeColor != UITheme.AccentGreen && c.ForeColor != UITheme.AccentPurple)
+                        c.ForeColor = UITheme.TextPrimary;
+                }
+
+                if (c.HasChildren)
+                    ApplyThemeRecursive(c);
+            }
         }
     }
 }

@@ -61,6 +61,22 @@ namespace EchoRAM
             txtHotkey = new TextBox { Location = new Point(250, 330), Width = 140, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary, BorderStyle = BorderStyle.FixedSingle };
             cardOpts.Controls.Add(lblHk); cardOpts.Controls.Add(txtHotkey);
 
+            var lblTheme = new Label { Text = "Appearance Theme:", Location = new Point(420, 222), AutoSize = true, ForeColor = UITheme.TextSecondary };
+            cmbTheme = new ComboBox
+            {
+                Location = new Point(560, 219),
+                Width = 140,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                BackColor = UITheme.BgDark,
+                ForeColor = UITheme.TextPrimary
+            };
+            cmbTheme.Items.AddRange(new object[] { "Dark", "Light", "System" });
+            cardOpts.Controls.Add(lblTheme); cardOpts.Controls.Add(cmbTheme);
+
+            var lblExcl = new Label { Text = "Excluded Apps (comma-separated):", Location = new Point(420, 259), AutoSize = true, ForeColor = UITheme.TextSecondary };
+            txtExcludedProcs = new TextBox { Location = new Point(420, 283), Width = 280, BackColor = UITheme.BgDark, ForeColor = UITheme.TextPrimary, BorderStyle = BorderStyle.FixedSingle };
+            cardOpts.Controls.Add(lblExcl); cardOpts.Controls.Add(txtExcludedProcs);
+
             var btnSave = new Button
             {
                 Text = "Save & Apply Settings",
@@ -112,6 +128,14 @@ namespace EchoRAM
             numMediumUsage.Value = (decimal)context.Settings.MediumUsagePercent;
             numIdleMinutes.Value = context.Settings.IdleMinutesThreshold;
             txtHotkey.Text = context.Settings.Hotkey ?? "Ctrl+Alt+F";
+
+            string tMode = context.Settings.ThemeMode ?? "Dark";
+            int idx = cmbTheme.FindStringExact(tMode);
+            cmbTheme.SelectedIndex = idx >= 0 ? idx : 0;
+
+            txtExcludedProcs.Text = context.Settings.ExcludedProcesses != null
+                ? string.Join(", ", context.Settings.ExcludedProcesses)
+                : "";
         }
 
         private void SaveSettingsFromUI()
@@ -134,8 +158,20 @@ namespace EchoRAM
             context.Settings.IdleMinutesThreshold = (int)numIdleMinutes.Value;
             context.Settings.Hotkey = txtHotkey.Text.Trim();
 
+            context.Settings.ThemeMode = cmbTheme.SelectedItem != null ? cmbTheme.SelectedItem.ToString() : "Dark";
+            var exclList = new System.Collections.Generic.List<string>();
+            foreach (string part in (txtExcludedProcs.Text ?? "").Split(','))
+            {
+                string trimmed = part.Trim();
+                if (!string.IsNullOrEmpty(trimmed)) exclList.Add(trimmed);
+            }
+            context.Settings.ExcludedProcesses = exclList.ToArray();
+
             AppSettings.Save(context.ConfigPath, context.Settings);
             context.SetupHotkey();
+
+            UITheme.ApplyTheme(context.Settings.ThemeMode);
+            ApplyThemeToUI();
 
             MessageBox.Show("Settings saved and applied.", "Settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }

@@ -31,6 +31,8 @@ namespace EchoRAM
 
         public int TotalFlushes { get; private set; }
         public double TotalReclaimedGB { get; private set; }
+        public List<string> RecentFlushes { get; private set; }
+        private readonly object flushHistoryLock = new object();
 
         private Bitmap baseIconBitmap = null;
         private IntPtr currentHIcon = IntPtr.Zero;
@@ -40,7 +42,7 @@ namespace EchoRAM
         private DateTime lastUpdateCheck = DateTime.MinValue;
         private System.Windows.Forms.Timer updateDelayTimer;
 
-        public TrayAppContext()
+        public TrayAppContext(bool showDashboardOnStart = false)
         {
             string appDir = Path.GetDirectoryName(Application.ExecutablePath);
             ConfigPath = Path.Combine(appDir, "config.json");
@@ -48,6 +50,8 @@ namespace EchoRAM
             IconPath = Path.Combine(appDir, "ram_icon.ico");
 
             Settings = AppSettings.Load(ConfigPath);
+            UITheme.ApplyTheme(Settings.ThemeMode ?? "Dark");
+            RecentFlushes = new List<string>();
             cpuMonitor = new CpuMonitor();
 
             if (File.Exists(IconPath))
@@ -116,6 +120,9 @@ namespace EchoRAM
                 Settings.CheckIntervalSeconds, Settings.EnableGameMode));
             ShowNotification("EchoRAM Active",
                 string.Format("Double-click tray icon to open Dashboard. Hotkey: {0}", Settings.Hotkey));
+
+            if (showDashboardOnStart)
+                ShowDashboard();
         }
 
         public void ShowDashboard()
@@ -587,7 +594,7 @@ namespace EchoRAM
                             NativeMethods.PurgeModifiedPages();
                             NativeMethods.PurgeStandbyList();
                             NativeMethods.PurgeLowPriorityStandbyList();
-                            trimmedCount = NativeMethods.TrimBackgroundProcesses(IsGameActive ? Settings.GameProcessNames : null);
+                            trimmedCount = NativeMethods.TrimBackgroundProcesses(IsGameActive ? Settings.GameProcessNames : null, Settings.ExcludedProcesses);
                             break;
 
                         case FlushLevel.PreGameFlush:
@@ -599,7 +606,7 @@ namespace EchoRAM
                             NativeMethods.PurgeModifiedPages();
                             if (Settings.AggressiveBackgroundTrimInGame)
                             {
-                                trimmedCount = NativeMethods.TrimBackgroundProcesses(Settings.GameProcessNames);
+                                trimmedCount = NativeMethods.TrimBackgroundProcesses(Settings.GameProcessNames, Settings.ExcludedProcesses);
                             }
                             break;
 
@@ -610,7 +617,7 @@ namespace EchoRAM
 
                         case FlushLevel.WorkingSets:
                             NativeMethods.PurgeWorkingSets();
-                            trimmedCount = NativeMethods.TrimBackgroundProcesses(IsGameActive ? Settings.GameProcessNames : null);
+                            trimmedCount = NativeMethods.TrimBackgroundProcesses(IsGameActive ? Settings.GameProcessNames : null, Settings.ExcludedProcesses);
                             break;
 
                         case FlushLevel.SystemWorkingSet:
@@ -642,6 +649,15 @@ namespace EchoRAM
                         DateTime.Now.ToString("HH:mm:ss"), level, reason,
                         before.dwMemoryLoad, after.dwMemoryLoad, freedGB, trimmedCount);
                     Log(logEntry);
+
+                    lock (flushHistoryLock)
+                    {
+                        string shortEntry = string.Format("{0}  |  {1} ({2})  |  {3}% -> {4}%  |  {5:F2} GB freed",
+                            DateTime.Now.ToString("HH:mm:ss"), level, reason, before.dwMemoryLoad, after.dwMemoryLoad, freedGB);
+                        RecentFlushes.Insert(0, shortEntry);
+                        if (RecentFlushes.Count > 10)
+                            RecentFlushes.RemoveAt(RecentFlushes.Count - 1);
+                    }
 
                     UpdateTrayIconAndTooltip();
 

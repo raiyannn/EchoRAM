@@ -29,6 +29,8 @@ namespace EchoRAM
 
         public bool EnableNotifications { get; set; }
         public bool CheckForUpdates { get; set; }
+        public string ThemeMode { get; set; }
+        public string[] ExcludedProcesses { get; set; }
 
         public AppSettings()
         {
@@ -129,6 +131,13 @@ namespace EchoRAM
 
             EnableNotifications = true;
             CheckForUpdates = true;
+            ThemeMode = "Dark";
+            ExcludedProcesses = new string[]
+            {
+                "Discord",
+                "Spotify",
+                "obs64"
+            };
         }
 
         public static AppSettings Load(string path)

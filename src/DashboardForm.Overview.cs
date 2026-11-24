@@ -290,9 +290,9 @@ namespace EchoRAM
             DrawLegendItem(g, barX + colW + 5, legY, UITheme.MemStandby, string.Format("Standby Cache: {0:F1} GB", mc.StandbyGB));
             DrawLegendItem(g, barX + (colW * 2) + 5, legY, UITheme.MemFree, string.Format("Free Available: {0:F1} GB", mc.FreeGB));
 
-            int tileY = 126;
-            int tileH = cardBreakdown.Height - tileY - 18;
-            if (tileH < 50) tileH = 50;
+            int tileY = 122;
+            int histTopReserve = 104;
+            int tileH = Math.Max(58, Math.Min(72, cardBreakdown.Height - tileY - histTopReserve - 16));
 
             int tileW = (barW - 20) / 3;
 
@@ -300,9 +300,9 @@ namespace EchoRAM
             var tile2 = new Rectangle(barX + tileW + 10, tileY, tileW, tileH);
             var tile3 = new Rectangle(barX + (tileW * 2) + 20, tileY, tileW, tileH);
 
-            UITheme.DrawCard(g, tile1, 10, Color.FromArgb(18, 22, 32), UITheme.BorderSubtle);
-            UITheme.DrawCard(g, tile2, 10, Color.FromArgb(18, 22, 32), UITheme.BorderSubtle);
-            UITheme.DrawCard(g, tile3, 10, Color.FromArgb(18, 22, 32), UITheme.BorderSubtle);
+            UITheme.DrawCard(g, tile1, 10, UITheme.BgDark, UITheme.BorderSubtle);
+            UITheme.DrawCard(g, tile2, 10, UITheme.BgDark, UITheme.BorderSubtle);
+            UITheme.DrawCard(g, tile3, 10, UITheme.BgDark, UITheme.BorderSubtle);
 
             double cpu = cpuMon.GetCpuUsage();
             TimeSpan idle = NativeMethods.GetIdleTime();
@@ -323,6 +323,35 @@ namespace EchoRAM
 
                 g.DrawString("SYSTEM LOAD", fSm, bDim, tile3.X + 14, tile3.Y + 10);
                 g.DrawString(string.Format("{0} procs / {1} threads", mc.ProcessCount, mc.ThreadCount), fV, bW, tile3.X + 14, tile3.Y + 30);
+            }
+
+            int histY = tile1.Bottom + 10;
+            int histH = cardBreakdown.Height - histY - 14;
+            if (histH >= 56)
+            {
+                var histRect = new Rectangle(barX, histY, barW, histH);
+                UITheme.DrawCard(g, histRect, 10, UITheme.BgDark, UITheme.BorderSubtle);
+
+                using (var fH = new Font("Segoe UI", 8f, FontStyle.Bold))
+                using (var fRow = new Font("Consolas", 8.5f))
+                using (var bMuted = new SolidBrush(UITheme.TextMuted))
+                using (var bSec = new SolidBrush(UITheme.TextSecondary))
+                {
+                    g.DrawString("RECENT FLUSH HISTORY", fH, bMuted, histRect.X + 14, histRect.Y + 8);
+                    var items = context.RecentFlushes != null ? context.RecentFlushes.ToArray() : new string[0];
+                    if (items.Length == 0)
+                    {
+                        g.DrawString("No flushes recorded yet this session.", fRow, bSec, histRect.X + 14, histRect.Y + 28);
+                    }
+                    else
+                    {
+                        int maxRows = Math.Min(items.Length, Math.Max(1, (histH - 30) / 18));
+                        for (int i = 0; i < maxRows; i++)
+                        {
+                            g.DrawString(items[i], fRow, bSec, histRect.X + 14, histRect.Y + 28 + (i * 18));
+                        }
+                    }
+                }
             }
         }
 

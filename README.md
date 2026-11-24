@@ -2,6 +2,8 @@
 
 EchoRAM is a lightweight, portable Windows RAM optimizer and background process manager written in C# (.NET Framework 4.5, WinForms). It uses native Windows NT kernel memory APIs to clear standby caches and trim idle background working sets without touching active games or anti-cheat services.
 
+![EchoRAM Dashboard](docs/screenshot.png)
+
 ## Download
 
 Grab the latest standalone `EchoRAM.exe` from the **[Releases](../../releases/latest)** page.
@@ -15,8 +17,9 @@ Grab the latest standalone `EchoRAM.exe` from the **[Releases](../../releases/la
 - **Kernel Memory Cleanup**: Flushes Standby List, Modified Page List, System File Cache, and Working Sets via native Windows APIs.
 - **Auto & Idle Triggers**: Automatically clears cached RAM when memory usage is high or your PC goes idle.
 - **Game Mode**: Automatically detects 60+ popular Steam/PC games plus Unreal Engine (`*-Win64-Shipping`) titles, boosts their priority, trims background apps, and leaves game and anti-cheat processes untouched.
-- **Process Manager**: View top RAM-using apps and trim individual or background processes manually.
-- **Tray & Hotkey**: Lives in the system tray with `Ctrl+Alt+F` for instant cleanup.
+- **Process Manager & Whitelist**: View top RAM-using apps, trim processes manually, and exclude apps like `Discord`, `Spotify`, or `obs64` from background trims.
+- **Dashboard & Themes**: Live RAM composition bar, recent flush history, Dark/Light/System theme toggle, and `Ctrl+Alt+F` global hotkey.
+- **Auto-Updates**: Checks GitHub Releases for new versions and supports 1-click self-updating.
 
 ## Requirements
 

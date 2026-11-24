@@ -95,7 +95,7 @@ namespace EchoRAM
             };
             btnTrimAll.Click += (s, e) =>
             {
-                int count = NativeMethods.TrimProcessWorkingSets(context.IsGameActive ? context.ActiveGameName : null);
+                int count = NativeMethods.TrimProcessWorkingSets(context.IsGameActive ? context.ActiveGameName : null, context.Settings.ExcludedProcesses);
                 MessageBox.Show(string.Format("Trimmed working sets across {0} processes.", count),
                     "Bulk Trim", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 RefreshProcessList();
