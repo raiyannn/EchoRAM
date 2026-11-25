@@ -54,23 +54,26 @@ namespace EchoRAM
             RecentFlushes = new List<string>();
             cpuMonitor = new CpuMonitor();
 
-            if (File.Exists(IconPath))
+            try
+            {
+                using (var assoc = Icon.ExtractAssociatedIcon(Application.ExecutablePath))
+                {
+                    if (assoc != null)
+                        baseIconBitmap = new Bitmap(assoc.ToBitmap(), 32, 32);
+                }
+            }
+            catch { }
+            if (baseIconBitmap == null && File.Exists(IconPath))
             {
                 try
                 {
                     using (var temp = new Icon(IconPath, 32, 32))
-                        baseIconBitmap = temp.ToBitmap();
-                }
-                catch { }
-            }
-            if (baseIconBitmap == null)
-            {
-                try
-                {
-                    using (var assoc = Icon.ExtractAssociatedIcon(Application.ExecutablePath))
+                    using (var bmpTemp = new Bitmap(32, 32))
+                    using (Graphics gt = Graphics.FromImage(bmpTemp))
                     {
-                        if (assoc != null)
-                            baseIconBitmap = new Bitmap(assoc.ToBitmap(), 32, 32);
+                        gt.Clear(Color.Transparent);
+                        gt.DrawIcon(temp, new Rectangle(0, 0, 32, 32));
+                        baseIconBitmap = new Bitmap(bmpTemp);
                     }
                 }
                 catch { }
@@ -528,6 +531,7 @@ namespace EchoRAM
                 using (var bmp = new Bitmap(32, 32))
                 using (Graphics g = Graphics.FromImage(bmp))
                 {
+                    g.Clear(Color.Transparent);
                     g.SmoothingMode = SmoothingMode.AntiAlias;
                     g.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
